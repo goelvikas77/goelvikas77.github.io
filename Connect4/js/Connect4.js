@@ -2,7 +2,7 @@ var programCode = function(processingInstance) {
   with (processingInstance) {
     size(600, 600); 
     frameRate(30);
-    /*
+    
     // constant variables
     var bottom_banner_height = 70;
     var NUM_COLS = 7;
@@ -342,8 +342,8 @@ var programCode = function(processingInstance) {
             text("Congratulations!!" , 130 , 30);
         }
 
-    };*/
-    ellipse(400,400,200,200);
+    };
+//    ellipse(400,400,200,200);
 
    }};
   // Get the canvas that ProcessingJS will use
