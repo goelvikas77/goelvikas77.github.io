@@ -58,6 +58,14 @@
         this.rowNumber = j;
 
     };
+     var Button = function(x , y , width , height , label , page){
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.label = label;  
+	this.page = page;     
+     };  
 
     //member function of slot. returns color.
     Slot.prototype.getColor = function() {
