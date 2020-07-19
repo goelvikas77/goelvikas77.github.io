@@ -343,7 +343,7 @@ var programCode = function(processingInstance) {
         }
 
     };*/
-    ellipse(100,100,200,200);
+//    ellipse(100,100,200,200);
 
    }};
   // Get the canvas that ProcessingJS will use
