@@ -343,4 +343,8 @@ var programCode = function(processingInstance) {
           }
       };
    }};
+  // Get the canvas that ProcessingJS will use
+  var canvas = document.getElementById("mycanvas"); 
+  // Pass the function to ProcessingJS constructor
+  var processingInstance = new Processing(canvas, programCode); 
       
