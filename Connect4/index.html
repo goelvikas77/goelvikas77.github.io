@@ -58,19 +58,26 @@
         this.rowNumber = j;
 
     };
-     var Button = function(x , y , width , height , label , page){
+     var Button = function(x , y , width , height , label , page , color , ts , tc){
 	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
 	this.label = label;  
-	this.page = page;     
-     };  
-
+	this.page = page;  
+	this.color = color;
+	this.textSize = ts;
+	this.textColor = tc;
+     };
+     var playButton = new Button();	  
+     var howButton = new Button();
+     var homeButton2 = new Button();   
+     var restartButton = new Button();
+	  
     //member function of slot. returns color.
     Slot.prototype.getColor = function() {
         return this.color;
-    };
+     };
 
     //member function of slot. shows how to draw slot.
     Slot.prototype.draw = function() {
@@ -91,9 +98,15 @@
         }
     };
 
+    Button.prototype.draw = function(){
+        rect(this.x , this.y , this.width , this.height);
+	textSize(this.ts);
+	fill(this.tc);    
+	text(this.label , this.x , this.y);    
+    };    	  
+	  
     //If the tile is empty, return true
-    Slot.prototype.empty = function() {
-
+    Slot.prototype.empty = function() 
         return this.isEmpty;
     };
 
@@ -247,15 +260,9 @@
                 slots_2d_array[i][j].draw();
             }
         }
-        //buttons
-        fill(0);
-        rect(69 , 370 , 125 , 25 , 5);
-        fill(255 , 255 , 255);
-        text("Home" , 99 , 391);
-        fill(0);
-        rect(211 , 370 , 125 , 25 , 5);
-        fill(255 , 255 , 255);
-        text("Restart" , 234 , 391);
+        //buttons        
+        homeButton2.draw(69 , 370 , 125 , 25 , "Home" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255));        
+        restartButton.draw(211 , 370 , 125 , 25 , "Restart" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255));    
     };
 
     // draws cover page
@@ -267,13 +274,11 @@
         text("Connect" , 20 , 90); 
         fill(214, 47, 47);
         text("4" , 326 , 90);
-        fill(148, 80, 143);
-        rect(34 , 280 , 150 , 30 , 5);
-        rect(221 , 280 , 150 , 30 , 5);
-        textSize(25);
-        fill(245, 245, 245);
-        text("Play", 85 , 304);
-        text("How", 269 , 304);
+	    
+        //buttons
+        playButton.draw(34 , 280 , 150 , 30 , "Play" , "CoverPage" , color(148, 80, 143) , 25 , fill(255 , 255 , 255));    
+        howButton.draw(221 , 280 , 150 , 30 , "How" , "CoverPage" , color(148, 80, 143) , 25 , fill(255 , 255 , 255));
+        
 
     };
 
@@ -291,10 +296,10 @@
          text("colored coins in a row. They can be placed " , 12 , 201);
          text("horizontally , vertically , and diagonally. " , 28 , 227);
          text("Whoever gets 4 in a row first, wins." , 43 , 253);
-         fill(139, 209, 227);
-         rect (120, 300 , 150 , 30);
-         fill(90, 38, 158);
-         text("Home" , 166 , 323);
+	    
+         //button
+	 var homeButton = new Button(120, 300 , 150 , 30 , "Home" , "HowPage" , color(139, 209, 227) , 20 , fill(217, 224, 27)) 
+         homeButton.draw() ;         
     };
 
     //decides what happens when mouse is released
