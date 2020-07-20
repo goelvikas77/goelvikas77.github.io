@@ -20,6 +20,7 @@
     ///////////////////////////////////////////////////////////////////
 
     // constant variables {
+// constant variables 
 var bottom_banner_height = 70;
 var NUM_COLS = 7;
 var NUM_ROWS = 7;
@@ -30,9 +31,9 @@ var grid_spacing = (height - bottom_banner_height) / (NUM_ROWS * 2);
 
 // [red, yellow]
 var COLORS = [color(252, 200, 10), color(245, 10, 45)];
-//}
+//
 
-//editable variables {
+//editable variables 
 var playerTurn = 0;
 var current_page = "CoverPage";
 var game_won = false;
@@ -45,7 +46,7 @@ var lastFilledSlot = [];
 var filledSlots = [NUM_COLS-1];
 //2d array for slots
 var slots_2d_array = [];
-//}
+//
 
 //properties of Slot
 var Slot = function(x, y, i, j) {
@@ -322,6 +323,7 @@ var drawHowPage = function() {
 //sets the current page
 //makes buttons
 mouseReleased = function() {
+    
     if( current_page === "GameBoard" ){
         var newSlotFilled = false;
         for (var i = 0 ; i < NUM_COLS ; i++) {
@@ -333,21 +335,23 @@ mouseReleased = function() {
                 }
             }
         }
-        
+        if(game_won === true || game_drawn === true && newSlotFilled === true){
+            game_won = false;
+        }
         if(newSlotFilled){
             check_win();
         }
-    }
-        if(mouseX >= homeButton2.x && mouseX <= homeButton2.x + homeButton2.width && mouseY >= homeButton2.y && mouseY <= homeButton2.y + homeButton2.height) {
+    
+    if(mouseX >= homeButton2.x && mouseX <= homeButton2.x + homeButton2.width && mouseY >= homeButton2.y && mouseY <= homeButton2.y + homeButton2.height) {
             current_page = "CoverPage";
-        }
+    }
 
 
         if(mouseX >= restartButton.x && mouseX <= restartButton.x + restartButton.width && mouseY >= restartButton.y && mouseY <= restartButton.y + restartButton.height ) {
                 current_page = "GameBoard";
                 resetGame();
         }
-        
+}       
     
 
     if(mouseX >= playButton.x && mouseX <= playButton.x + playButton.width && mouseY >= playButton.y &&     mouseY <= playButton.y + playButton.height && current_page === "CoverPage" ) {
@@ -363,6 +367,7 @@ mouseReleased = function() {
        current_page = "CoverPage";
        return;
     }
+    
 };
 
 //called repeatedly
@@ -380,15 +385,22 @@ draw = function() {
         drawGameBoard();
     }
 
-    if (current_page === "GameBoard" && game_won === true)
+    if (current_page === "GameBoard" && game_won === true && playerTurn === 1)
     {
-        fill(250 , 250 , 250);
+        fill(255 , 255 , 0);
         textSize(20);
-        text("Congratulations!!" , 130 , 30);
+        text("Congratulations!! Yellow Wins" , 67 , 30);
+        return;
+    }
+    if (current_page === "GameBoard" && game_won === true && playerTurn === 0)
+    {
+        fill(255 , 0 , 0);
+        textSize(20);
+        text("Congratulations!! Red Wins" , 79 , 30);
+        return;
     }
 };
 
-//    ellipse(400,400,200,200);
 ///////////////////////////////////////////////////////////////////
    }};
   // Get the canvas that ProcessingJS will use
