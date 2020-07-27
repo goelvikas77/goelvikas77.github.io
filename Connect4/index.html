@@ -75,15 +75,15 @@ var Button = function(x , y , width , height , label , page , color , ts , tc , 
 };
 
 //button variables {
-var homeButton = new Button(120, 300 , 150 , 30 , "Home" , "HowPage" , color(139, 209, 227) , 20 , fill(217, 224, 27) , 163 , 323);
+var homeButton = new Button(120, 300 , 150 , 30 , "Home" , "HowPage" , color(139, 209, 227) , 25 , fill(217, 224, 27) , 163 , 323);
 
 var restartButton = new Button(211 , 370 , 125 , 25 , "Restart" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255) , 243 , 390);
 
 var homeButton2 = new Button(69 , 370 , 125 , 25 , "Home" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255) , 105 , 390); 
 
-var playButton = new Button(34 , 280 , 150 , 30 , "Play" , "CoverPage" , color(148, 80, 143), 15 , fill(255 , 255 , 255) , 77 , 305);
+var playButton = new Button(34 , 280 , 150 , 30 , "Play" , "CoverPage" , color(148, 80, 143), 30 , fill(255 , 255 , 255) , 77 , 305);
 
-var howButton = new Button(221 , 280 , 150 , 30 , "How" , "CoverPage" , color(148, 80, 143), 15 , fill(255 , 255 , 255) , 264 , 305);
+var howButton = new Button(221 , 280 , 150 , 30 , "How" , "CoverPage" , color(148, 80, 143), 30 , fill(255 , 255 , 255) , 264 , 305);
 //}
 
 //member function of slot. returns color.
@@ -95,8 +95,8 @@ Slot.prototype.getColor = function() {
 Button.prototype.draw = function() {
     fill(this.color);
     rect(this.x , this.y , this.width , this.height);
-    textSize(this.ts);
-    fill(this.tc);
+    textSize(this.textSize);
+    fill(this.textColor);
     text(this.label , this.labelX, this.labelY);
 };
 
@@ -279,9 +279,6 @@ var drawGameBoard = function() {
         }
     }
     //buttons
-    textSize(20);
-    
-    var restartButton = new Button(211 , 370 , 125 , 25 , "Restart" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255) , 243 , 390);
     homeButton2.draw();        
     restartButton.draw();
 };
@@ -296,9 +293,6 @@ var drawCoverPage = function() {
     text("4" , 326 , 90);
     
     //buttons
-    textSize(30);
-    
-    
     playButton.draw();    
     howButton.draw();
 };
@@ -318,8 +312,6 @@ var drawHowPage = function() {
     text("Whoever gets 4 in a row first, wins." , 43 , 253);
     
     //button
-    textSize(25);
-     
     homeButton.draw() ;         
 };
 
@@ -432,6 +424,9 @@ draw = function() {
         fill(255, 0, 0);
         ellipse(285 , 23 , 10 , 10); 
     }
+};
+//}
+
 };
 //}
 ///////////////////////////////////////////////////////////////////
