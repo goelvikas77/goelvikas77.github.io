@@ -18,15 +18,443 @@
       frameRate(30);
         
       // Paste code from Khan Academy here:
-      fill(255, 255, 0);
-      ellipse(200, 200, 200, 200);
-      noFill();
-      stroke(0, 0, 0);
-      strokeWeight(2);
-      arc(200, 200, 150, 100, 0, PI);
-      fill(0, 0, 0);
-      ellipse(250, 200, 10, 10);
-      ellipse(153, 200, 10, 10);
+//code {
+// constant variables 
+var NUM_COLS = 7;
+var NUM_ROWS = 7;
+var bottom_banner_height = 70;
+var winning_seq_length = 4;
+var page = ["cover" , "how" , "game"];
+
+//space between slots
+var grid_spacing = (height - bottom_banner_height) / (NUM_ROWS * 2);
+
+// [red, yellow]
+var COLORS = [color(252, 200, 10), color(245, 10, 45)];
+
+
+//editable variables 
+var playerTurn = 0;
+var current_page = "CoverPage";
+var game_won = false;
+var game_drawn = false;
+var num_slots_filled = 0;
+var lastFilledSlot = [];
+var lastTolastFilledSlot = [];
+
+// number of filled slots per column
+var filledSlots = [NUM_COLS-1];
+//2d array for slots
+var slots_2d_array = [];
+
+
+//properties of Slot
+var Slot = function(x, y, i, j) {
+    // coordinates of slot
+    this.x = x; 
+    this.y = y;
+    
+    this.color = "";
+    this.isEmpty = true; // this could be figured out from this.color
+    this.radius = (height - bottom_banner_height)/(NUM_ROWS * 1.1); // this could be a constant and not a data member
+    this.colNumber = i;
+    this.rowNumber = j;
+    this.isHighlighted = true;
+};
+
+//properties of button
+var Button = function(x , y , width , height , label , page , color , ts , tc , labelX , labelY){
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.label = label;  
+    this.page = page;  
+    this.color = color;
+    this.textSize = ts;
+    this.textColor = tc;
+    this.labelX = labelX; // why cannot these be calculated from other properties
+    this.labelY = labelY;
+};
+
+//button variables {
+var homeButton = new Button(120, 300 , 150 , 30 , "Home" , "HowPage" , color(139, 209, 227) , 25 , fill(217, 224, 27) , 163 , 323);
+
+var restartButton = new Button(211 , 370 , 125 , 25 , "Restart" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255) , 243 , 390);
+
+// this var could have a better name
+var homeButton2 = new Button(69 , 370 , 125 , 25 , "Home" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255) , 105 , 390); 
+
+var playButton = new Button(34 , 280 , 150 , 30 , "Play" , "CoverPage" , color(148, 80, 143), 30 , fill(255 , 255 , 255) , 77 , 305);
+
+var howButton = new Button(221 , 280 , 150 , 30 , "How" , "CoverPage" , color(148, 80, 143), 30 , fill(255 , 255 , 255) , 264 , 305);
+//}
+
+//member function of slot. returns color.
+Slot.prototype.getColor = function() {
+    return this.color;
+};
+
+// member function of Button. Shows how to draw a button
+Button.prototype.draw = function() {
+    fill(this.color);
+    rect(this.x , this.y , this.width , this.height);
+    textSize(this.textSize);
+    fill(this.textColor);
+    text(this.label , this.labelX, this.labelY);
+};
+
+//member function of slot. shows how to draw slot.
+Slot.prototype.draw = function() {
+    if(this.empty()){
+        //if a slot is empty , fill it white
+        fill(255, 255, 255);
+        noStroke();
+    }
+    else{
+        //if not , fill it red or yellow
+        fill(this.color);
+        if(this.isHighlighted === false){
+            noStroke();
+        }
+        else
+        {
+            stroke(0, 0, 0);
+            strokeWeight(4);
+        }
+    }
+    
+    //the original slot
+    ellipse(this.x, this.y, this.radius, this.radius);
+
+    // draw grey dot if this is the lowest open slot in col
+    if(this.isLowestOpenSlotInCol() === true){
+        //if a slot is the lowest open slot in its column , draw the grey dot
+        fill(139, 139, 158);
+        noStroke();
+        ellipse(this.x , this.y , 10, 10); 
+    }
+};
+
+//If the tile is empty, return true
+Slot.prototype.empty = function() {
+    return this.isEmpty;
+};
+
+//checks if it is the lowest open slot in colomn
+Slot.prototype.isLowestOpenSlotInCol = function() {
+    return(NUM_ROWS - 1 - this.rowNumber === filledSlots[this.colNumber]);
+};
+
+//gets the lenght of a color sequence in every direction from a certain slot.
+var get_seq_length_in_direction = function(col_num, row_num, col_dir, row_dir){
+    var same_color = true;
+    var seq_length = 1;
+    var seq_color = slots_2d_array[col_num][row_num].getColor();
+
+    while(  same_color && col_num + col_dir*seq_length >= 0  &&  row_num + row_dir*seq_length < NUM_ROWS && col_num + col_dir*seq_length < NUM_COLS && row_num + row_dir*seq_length >=0)
+    {
+        if( slots_2d_array[col_num + col_dir*seq_length][row_num + row_dir*seq_length].getColor() === seq_color) {
+            seq_length++;
+        }
+        else
+        {
+            same_color = false;
+        }
+    }
+    return seq_length;
+};
+
+//resets the game  , Re-difines all editable variables
+var resetGame = function(){
+    playerTurn = 0;
+    game_won = false;
+    game_drawn = false;
+    num_slots_filled = 0;
+    lastFilledSlot = [];
+    lastTolastFilledSlot = [];
+    for(var i = 0; i < NUM_COLS;i++){
+        for(var j = 0; j < NUM_ROWS; j++){
+            slots_2d_array[i][j].color = "";
+            slots_2d_array[i][j].isEmpty = true;
+        }
+    }
+    for(var i = 0; i < NUM_COLS ; i++){
+        filledSlots[i] = 0;
+    } 
+};
+
+// member function of Slot called when slot is clicked
+Slot.prototype.onClick = function() {
+    
+    var slotFilled = false;
+
+    //check if coin can fall in this slot
+    if(this.empty() && this.isLowestOpenSlotInCol() ) {
+        slotFilled = true;
+
+        // these should move to gameboard
+        num_slots_filled++;
+        lastTolastFilledSlot = lastFilledSlot;
+        lastFilledSlot = [this.colNumber, this.rowNumber];
+
+        
+        // update number of filled slots in this column
+        filledSlots[this.colNumber]++;
+        
+        // Put the player's color on the slot
+        this.color = COLORS[playerTurn];
+        this.isEmpty = false;
+
+        // these should move to gameboard
+        // Change the turn
+        playerTurn++;
+        // reset playerTurn
+        if (playerTurn >= COLORS.length) {
+             playerTurn = 0;
+        }
+    }
+    return slotFilled;
+};
+
+//checks if a player has won or if there is a draw
+var check_win = function() {
+// given last filled slot
+    var lfs_col = lastFilledSlot[0];
+    var lfs_row = lastFilledSlot[1];
+
+    // check in south direction
+    if( get_seq_length_in_direction(lfs_col, lfs_row, 0, 1) >= winning_seq_length )
+    {
+        game_won = true;
+        return;
+    }
+
+    // check in east-west direction
+    if( get_seq_length_in_direction(lfs_col, lfs_row, 1, 0) + get_seq_length_in_direction(lfs_col, lfs_row, -1, 0) - 1 >= winning_seq_length )
+    {
+        game_won = true;
+        return;
+    }
+
+    // check in northwest-southeast direction
+    if(get_seq_length_in_direction(lfs_col, lfs_row, -1, -1) + get_seq_length_in_direction(lfs_col, lfs_row, 1, 1)- 1 >= winning_seq_length )
+    {
+        game_won = true;
+        return;
+    }
+
+    // check in northeast-southwest direction
+    if( get_seq_length_in_direction(lfs_col, lfs_row, 1, -1) + get_seq_length_in_direction(lfs_col, lfs_row, -1, 1) - 1 >= winning_seq_length )
+    {
+        game_won = true;
+        return;
+    }
+    
+    //check for a draw
+    if(num_slots_filled === NUM_COLS * NUM_ROWS){
+        game_drawn = true;
+    }
+    return;
+};
+
+//member function of SLot responds to mouse-click; checks if click is inside this slot. if so, then calls On-Click to react
+Slot.prototype.handleMouseClick = function(a, b) {
+    var slotFilled = false;
+    var clickAreaSize = this.radius/2;
+    if ( a >= this.x - clickAreaSize && a <= this.x + clickAreaSize    &&
+       b >= this.y - clickAreaSize && b <= this.y  + clickAreaSize )
+    {
+        slotFilled = this.onClick();
+    }
+    return slotFilled;
+};
+
+
+// initializes filledSlots in every column to ZERO
+// called once initially
+for(var i = 0 ; i < NUM_COLS ; i++) {
+    filledSlots[i] = 0;
+}
+
+//create all slots
+// called once initially
+for (var i = 0 ; i < NUM_COLS ; i++) {
+    slots_2d_array.push( [] );
+
+    for (var j = 0 ; j < NUM_ROWS ; j++){
+        slots_2d_array[i].push(new Slot( (2*i + 1)*grid_spacing +  bottom_banner_height/2, (2*j + 1)*grid_spacing + bottom_banner_height/2, i, j));
+    }
+}
+
+// draws game board by drawing each slot and button 
+var drawGameBoard = function() {
+    background(55, 26, 217);
+    for (var i = 0 ; i < NUM_COLS ; i++) {
+        for (var j = 0 ; j < NUM_ROWS ; j++){
+            slots_2d_array[i][j].draw();
+        }
+    }
+    //buttons
+//    textSize(20);
+    
+//    var restartButton = new Button(211 , 370 , 125 , 25 , "Restart" , "GameBoard" , color(0 , 0 , 0) , 20 , fill(255 , 255 , 255) , 243 , 390);
+    homeButton2.draw();        
+    restartButton.draw();
+};
+
+// draws cover page
+var drawCoverPage = function() {
+    background(131, 190, 242);
+    fill(43, 255, 0);
+    textSize(80);
+    text("Connect" , 20 , 90); 
+    fill(214, 47, 47);
+    text("4" , 326 , 90);
+    
+    //buttons
+//    textSize(30);
+    playButton.draw();    
+    howButton.draw();
+};
+
+//draws how page
+var drawHowPage = function() {
+    background(230, 28, 28);
+    fill(217, 224, 27);
+    textSize(50);
+    text("How To Play" , 61, 55);
+    textSize(20);
+    text("Connect 4 is a 2 player game. Each " , 40 , 114);
+    text("player is assigned a color(red or yellow)." , 24 , 144);
+    text("The aim of the game is to get 4 of your " , 24 , 174);   
+    text("colored coins in a row. They can be placed " , 12 , 201);
+    text("horizontally , vertically , and diagonally. " , 28 , 227);
+    text("Whoever gets 4 in a row first, wins." , 43 , 253);
+    
+    //button
+//    textSize(25);
+    homeButton.draw() ;         
+};
+
+//decides what happens when mouse is released
+//sets the current page
+//makes buttons
+mouseReleased = function() {
+    if( current_page === "GameBoard" ){
+        // if game is not already over, then check if a valid slot is clicked
+        if(game_won === false && game_drawn === false){
+            var newSlotFilled = false;
+            for (var i = 0 ; i < NUM_COLS ; i++) {
+                for (var j = 0 ; j < NUM_ROWS ; j++){
+                    var ans = slots_2d_array[i][j].handleMouseClick(mouseX, mouseY);
+                    if (ans)
+                    {
+                        newSlotFilled = true;
+                    }
+                }
+            }
+            // if valid slot is clicked, check if game is over
+            if(newSlotFilled){
+                check_win();
+//                println(lastTolastFilledSlot);
+                slots_2d_array[lastTolastFilledSlot[0]][lastTolastFilledSlot[1]].isHighlighted = false;
+                slots_2d_array[lastFilledSlot[0]][lastFilledSlot[1]].isHighlighted = true;
+                return;
+            }
+        }
+
+        // check if home button was clicked
+        if(mouseX >= homeButton2.x && mouseX <= homeButton2.x + homeButton2.width && mouseY >= homeButton2.y && mouseY <= homeButton2.y + homeButton2.height) {
+            current_page = "CoverPage";
+            resetGame();
+            return;
+        }
+        
+        // check if restart button was clicked
+        if(mouseX >= restartButton.x && mouseX <= restartButton.x + restartButton.width && mouseY >= restartButton.y && mouseY <= restartButton.y + restartButton.height ){
+            resetGame();
+            return;
+        }
+    }   
+    
+    // play button functionallity
+    if(mouseX >= playButton.x && mouseX <= playButton.x + playButton.width && mouseY >= playButton.y &&     mouseY <= playButton.y + playButton.height && current_page === "CoverPage" ) {
+           current_page = "GameBoard"; 
+           return;
+        }
+        //how button functionallity
+        if(mouseX >= howButton.x && mouseX <= howButton.x + howButton.width && mouseY >= howButton.y &&     mouseY <= howButton.y  + howButton.height && current_page === "CoverPage" ) {
+           current_page = "HowPage"; 
+           return;
+        }
+        //home button functionallity
+        if(mouseX >= homeButton.x && mouseX <= homeButton.x + homeButton.width && mouseY >= homeButton.y &&     mouseY <= homeButton.y + homeButton.height && current_page === "HowPage" ) {
+           current_page = "CoverPage";
+           return;
+        }
+};
+
+//called repeatedly
+//decides which page to draw
+//draws the playerturn sign 
+//draws what happens when a player wins or when its a draw
+draw = function() {  
+    if(current_page === "CoverPage"){
+        drawCoverPage();
+    }
+
+    if(current_page === "HowPage"){
+        drawHowPage();
+    }
+
+    if(current_page === "GameBoard"){
+        drawGameBoard();
+
+        if (game_won === true && playerTurn === 1)
+        {
+            fill(255 , 255 , 0);
+            textSize(20);
+            text("Congratulations!! Yellow Wins" , 67 , 30);
+            return;
+        }
+        if (game_won === true && playerTurn === 0)
+        {
+            fill(255 , 0 , 0);
+            textSize(20);
+            text("Congratulations!! Red Wins" , 79 , 30);
+            return;
+        }
+        if(game_drawn === true){
+            fill(255, 165, 0);
+            textSize(30);
+            text("Draw" , 164 , 29);
+            return;
+        }
+    
+        // if game still in progress - put headers for players
+        if(game_won === false && game_drawn === false){
+            fill(255, 255, 0);
+            noStroke();
+            textSize(25);
+            text("Yellow" , 50 , 30);    
+        
+            fill(255, 0, 0);
+            textSize(25);
+            text("Red" , 300 , 30);
+    
+            fill(COLORS[playerTurn]);
+            if(playerTurn === 0){
+//                fill(255, 255, 0); 
+                ellipse(135 , 23 , 10 , 10);
+            }
+            if(playerTurn === 1){
+//                fill(255, 0, 0);
+                ellipse(285 , 23 , 10 , 10); 
+            }
+        }
+    }
+};
     }};
 
   // Get the canvas that ProcessingJS will use
