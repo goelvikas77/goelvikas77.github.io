@@ -312,13 +312,13 @@ draw = function() {
     strokeWeight(0);
     background(255, 255, 255);
     winston.draw();
-    image(getImage("creatures/Winston") , mouseX , mouseY , 20 , 20);
+//    image(getImage("creatures/Winston") , mouseX , mouseY , 20 , 20);
     if (waitCount>1) {
 	reset_winston();
         waitCount=0;// the wait count will reset.
     }
 	waitCount += change_speed;
-	print(waitCount);
+	text(waitCount, 300, 300);
 };
 
 
