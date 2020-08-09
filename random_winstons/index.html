@@ -314,11 +314,11 @@ draw = function() {
     winston.draw();
     image(getImage("creatures/Winston") , mouseX , mouseY , 20 , 20);
     if (waitCount>1) {
-        reset_winston();
+	reset_winston();
         waitCount=0;// the wait count will reset.
-    
     }
-waitCount += change_speed;
+	waitCount += change_speed;
+	println(waitCount);
 };
 
 
