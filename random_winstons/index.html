@@ -1,1 +1,333 @@
-xx
+<!DOCTYPE html>
+<html> 
+  <head>
+    <title>Processing.JS inside Webpages: Template</title> 
+  </head>
+  <body>
+	<!--This draws the canvas on the webpage -->
+    <canvas id="mycanvas"></canvas> 
+  </body>
+ 
+  <!-- Include the processing.js library -->
+  <!-- See https://khanacademy.zendesk.com/hc/en-us/articles/202260404-What-parts-of-ProcessingJS-does-Khan-Academy-support- for differences -->
+  <script src="https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js"></script>
+<!--script src="js/Connect4.js"></script-->
+<script>	
+	var programCode = function(processingInstance) {
+  with (processingInstance) {
+    size(400, 400); 
+    frameRate(30);
+    ///////////////////////////////////////////////////////////////////
+//code
+// constant variables 
+//Troy Cook
+//eagle35
+var change_speed = 0.02;
+var randnum =5;
+var waitCount= 0;
+
+var Winston = function(){
+    this.eye1State = 0;
+    this.eye2State = 0;
+    this.mouthState = 0;
+    this.headState = 0;
+};
+
+var winston = new Winston();
+
+var original_winston = function(){
+fill(250, 250, 8);
+ellipse(202 , 208 , 300 , 300);     
+    
+fill(0, 0, 0);
+ellipse(157, 151, 40, 40);
+
+fill(0, 0, 0);
+ellipse(304, 140, 40, 40);
+
+fill(255, 0, 0);
+ellipse(257, 240, 120, 136);
+
+fill(0 , 0 , 0);
+rect(275 , 25 , 100 , 30 , 5);
+textSize(22);
+fill(250, 250, 250);
+text("New" , 304 , 49);
+    
+};
+
+Winston.prototype.eye2Tired = function(x,y,sx,sy,r,fc,sc){
+    fill(0, 0, 0);
+    ellipse(304, 140, 40, 40);
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(sx,sy);
+    rotate(r);
+    fill(0, 0, 0);
+    stroke(sc);
+    beginShape();
+    curveVertex(1,83); curveVertex(35,72); curveVertex(0,94); curveVertex(-35,72); curveVertex(1,83); curveVertex(35,72); curveVertex(2,94); /**/
+    endShape();
+    popStyle();
+    popMatrix();
+};
+
+Winston.prototype.eye1reg = function(){
+fill(0, 0, 0);
+ellipse(157, 151, 40, 40);
+};
+
+Winston.prototype.eye2reg = function(){
+fill(0, 0, 0);
+ellipse(304, 140, 40, 40);
+};
+
+Winston.prototype.eye1Shocked = function(){
+fill(0, 0, 0);
+ellipse(157, 151, 60, 60);
+};
+
+Winston.prototype.eyePatch = function(x,y,sx,sy,r,fc,sc){
+    
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(sx,sy);
+    rotate(r);
+    fill(0);
+    stroke(sc);
+    beginShape();
+    curveVertex(27,-92); curveVertex(7,-11); curveVertex(-103,-1); curveVertex(-101,-122); curveVertex(27,-92); curveVertex(7,-11); curveVertex(-103,-1); /**/
+    endShape();
+    popStyle();
+    popMatrix();
+    line(52 , 200 , 245 , 66);
+    line(53 , 199 , 246 , 65);
+    line(54 , 198 , 247 , 64);
+    line(55 , 197 , 248 , 63);
+};
+
+Winston.prototype.eye2Shocked = function(){
+fill(0, 0, 0);
+ellipse(283, 129, 60, 60);
+};
+
+Winston.prototype.eye1wink = function(){
+fill(0, 0, 0);
+arc(169, 150, 76, 40, -207, 23);
+};
+
+Winston.prototype.eye2wink = function(){
+fill(0, 0, 0);
+arc(283, 150, 76, 40, -207, 23);
+};
+
+Winston.prototype.eye1cry = function(x , y , sx , sy , r , sc){
+    fill(0, 0, 0);
+    ellipse(157, 151, 40, 40);
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(sx,sy);
+    rotate(r);
+    fill(47, 173, 212);
+    stroke(sc);
+    beginShape();
+    curveVertex(3,-101); curveVertex(60,49); curveVertex(10,97); curveVertex(-37,49);     curveVertex(3,-101); curveVertex(60,49); curveVertex(10,97); /**/
+    endShape();
+    popStyle();
+    popMatrix();
+
+};
+
+Winston.prototype.eye2cry = function(x , y , sx , sy , r , sc){
+    fill(0, 0, 0);
+    ellipse(304, 140, 40, 40);
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(sx,sy);
+    rotate(r);
+    fill(47, 173, 212);
+    stroke(sc);
+    beginShape();
+    curveVertex(3,-101); curveVertex(60,49); curveVertex(10,97); curveVertex(-37,49);     curveVertex(3,-101); curveVertex(60,49); curveVertex(10,97); /**/
+    endShape();
+    popStyle();
+    popMatrix();
+
+};
+
+Winston.prototype.mouth = function(){
+fill(255, 0, 0);
+ellipse(257, 240, 120, 136);
+};
+
+Winston.prototype.smile = function(){
+fill(255, 0, 0);   
+arc(257, 241, 117, 125 , 339 , 534);
+};
+
+Winston.prototype.tongue = function(x,y,sx,sy,r,fc,sc){
+    pushMatrix();
+    pushStyle();
+    translate(x,y);
+    scale(sx,sy);
+    rotate(r);
+    fill(255, 0, 0);
+    stroke(sc);    beginShape();
+    curveVertex(34,-77); curveVertex(26,62); curveVertex(-26,63); curveVertex(-34,-78); curveVertex(34,-77); curveVertex(26,62); curveVertex(-26,63); 
+    endShape();
+    popStyle();
+    popMatrix();
+};
+
+Winston.prototype.snore = function(){
+    var ts = 30;
+    var textX = 241 , textY = 254;
+//    strokeWeight(0);
+    
+    fill(255, 0, 0);
+    ellipse(257, 240, 120, 136);
+    textSize(ts);
+    for( var i = 0; i < 7;i++){
+        fill(0);
+        text("Z" , textX, textY);
+        textSize(ts);
+        ts--;
+        textX+=23;
+        textY-=10;
+    }
+};
+
+Winston.prototype.dollareye = function(){
+    fill(176, 176, 37);
+    textSize(80);
+    text("$" , 140 , 169);
+};
+
+Winston.prototype.dollareye2 = function(){
+    fill(176, 176, 37);
+    textSize(80);
+    text("$" , 268 , 169);
+};
+
+Winston.prototype.dollarmouth = function(){
+    winston.tongue(229,308,0.9,1,0,0xFF0000FF,0xFF000000);
+    fill(176, 176, 37);
+    textSize(80);
+    text("$" , 209 , 315);
+};
+
+
+Winston.prototype.draw = function() { 
+    // face
+    fill(250, 250, 8);
+    ellipse(202, 208, 300, 300);
+    
+    // left eye
+    if(this.eye1State < 1/6){
+        strokeWeight(0);
+        winston.eye1reg(); 
+    }
+    if(this.eye1State > 1/6 && this.eye1State < 2/6){
+        strokeWeight(0);
+        winston.eye1wink();  
+    }
+    if(this.eye1State > 2/6 && this.eye1State < 3/6){
+        strokeWeight(0);
+        winston.eye1Shocked();  
+    }
+    if(this.eye1State > 3/6 && this.eye1State < 4/6){
+        strokeWeight(0);
+        winston.eye1cry(159,216,0.3,0.3,0,0xFF0000FF,0xFF000000,0); 
+    }
+    if(this.eye1State > 4/6 && this.eye1State < 5/6){ 
+        strokeWeight(0);
+        winston.eyePatch(180,173,0.6,0.6,0,0xFF0000FF,0xFF000000,0);
+    }
+    if(this.eye1State > 5/6 && this.eye1State < 6/6){ 
+        strokeWeight(0);
+        winston.dollareye();
+    }
+    //mouth
+    if(this.mouthState < 1/5){ 
+        strokeWeight(0);
+        winston.mouth();
+    }
+    if(this.mouthState > 1/5 && this.mouthState < 2/5){        
+        strokeWeight(0);
+        winston.smile();
+    }
+    
+    if(this.mouthState > 2/5 && this.mouthState < 3/5){  
+        strokeWeight(0);
+        winston.tongue(229,308,0.9,1,0,0xFF0000FF,0xFF000000);
+    }
+    if(this.mouthState > 3/5 && this.mouthState < 4/5){ 
+        strokeWeight(0);
+        winston.snore();
+    }
+    if(this.mouthState > 4/5 && this.mouthState < 5/5){ 
+        strokeWeight(0);
+        winston.dollarmouth();
+    }
+    // right eye
+    if(this.eye2State < 1/5){ 
+        strokeWeight(0);
+        winston.eye2reg(); 
+    }
+    if(this.eye2State > 1/5 && this.eye2State < 2/5){ 
+        strokeWeight(0);
+        winston.eye2wink();  
+    }
+    if(this.eye2State > 2/5 && this.eye2State < 3/5){ 
+        strokeWeight(0);
+        winston.eye2Tired(303,110,0.75,0.75,0,0xFF0000FF,0xFF000000,4);  
+    }
+    if(this.eye2State > 3/5 && this.eye2State < 4/5){ 
+        strokeWeight(0);
+        winston.eye2cry(304,210,0.3,0.3,0,0xFF0000FF,0xFF000000,0);    
+        
+    }
+    if(this.eye2State > 4/5 && this.eye2State < 5/5){ 
+        strokeWeight(0);
+        winston.dollareye2();    
+        
+    }
+    
+};
+
+
+var reset_winston = function(){
+    winston.eye1State = random(0 , 1);
+    winston.eye2State = random(0 , 1);
+    winston.mouthState = random(0 , 1);
+};
+
+original_winston();
+
+draw = function() {
+    strokeWeight(0);
+    background(255, 255, 255);
+    winston.draw();
+    image(getImage("creatures/Winston") , mouseX , mouseY , 20 , 20);
+    if (waitCount>1) {
+        reset_winston();
+        waitCount=0;// the wait count will reset.
+    
+    }
+waitCount += change_speed;
+};
+
+
+
+///////////////////////////////////////////////////////////////////
+   }};
+  // Get the canvas that ProcessingJS will use
+  var canvas = document.getElementById("mycanvas"); 
+  // Pass the function to ProcessingJS constructor
+  var processingInstance = new Processing(canvas, programCode);
+</script>
+</html>
